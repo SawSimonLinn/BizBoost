@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -65,7 +66,7 @@ const StaffCostForm = ({
     onClose: () => void;
     defaultValues: Partial<StaffCost>;
 }) => {
-    const { control, handleSubmit, reset } = useForm<z.infer<typeof staffCostSchema>>({
+    const { control, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof staffCostSchema>>({
         resolver: zodResolver(staffCostSchema),
         defaultValues: {
             employeeName: defaultValues.employeeName ?? "",
@@ -88,7 +89,11 @@ const StaffCostForm = ({
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} id="staff-cost-form" className="space-y-4">
+          <DialogHeader>
+            <DialogTitle>{defaultValues.id ? 'Edit' : 'Add'} Staff Cost</DialogTitle>
+          </DialogHeader>
+          
           <div>
             <Label htmlFor="employeeName">Employee Name</Label>
             <Controller
@@ -96,22 +101,23 @@ const StaffCostForm = ({
               control={control}
               render={({ field }) => <Input {...field} id="employeeName" />}
             />
+             {errors.employeeName && <p className="text-sm text-destructive mt-1">{errors.employeeName.message}</p>}
           </div>
           
           <div className="flex items-center space-x-2">
-            <Label htmlFor="paymentType">Hourly</Label>
+            <Label htmlFor="paymentTypeSwitch">Hourly</Label>
             <Controller
                name="paymentType"
                control={control}
                render={({ field }) => (
                  <Switch
-                    id="paymentType"
+                    id="paymentTypeSwitch"
                     checked={field.value === 'salary'}
                     onCheckedChange={(checked) => field.onChange(checked ? 'salary' : 'hourly')}
                   />
                )}
             />
-            <Label htmlFor="paymentType">Monthly Salary</Label>
+            <Label htmlFor="paymentTypeSwitch">Monthly Salary</Label>
           </div>
 
           {paymentType === 'hourly' ? (
@@ -147,9 +153,12 @@ const StaffCostForm = ({
                 />
               </div>
           )}
+           {errors.hours && <p className="text-sm text-destructive mt-1">{errors.hours.message}</p>}
 
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+            <DialogClose asChild>
+                <Button type="button" variant="ghost">Cancel</Button>
+            </DialogClose>
             <Button type="submit">Save</Button>
           </DialogFooter>
         </form>
@@ -202,9 +211,20 @@ export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: Staf
             <span className="font-bold text-primary">{formatCurrency(totalWageCost)}</span>
           </CardDescription>
         </div>
-        <Button size="sm" onClick={() => openDialog()}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Staff
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" onClick={() => openDialog()}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Staff
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <StaffCostForm 
+              onSave={handleSave} 
+              onClose={closeDialog} 
+              defaultValues={editingCost || { paymentType: 'hourly' }} 
+            />
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent>
         <Table>
@@ -257,19 +277,9 @@ export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: Staf
             )}
           </TableBody>
         </Table>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingCost ? 'Edit' : 'Add'} Staff Cost</DialogTitle>
-            </DialogHeader>
-            <StaffCostForm 
-              onSave={handleSave} 
-              onClose={closeDialog} 
-              defaultValues={editingCost || { paymentType: 'hourly' }} 
-            />
-          </DialogContent>
-        </Dialog>
       </CardContent>
     </Card>
   );
 }
+
+    

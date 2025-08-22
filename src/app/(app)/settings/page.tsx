@@ -1,12 +1,12 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 import { Settings } from "lucide-react";
 
 export default function SettingsPage() {
     return (
         <div>
-            <h1 className="text-2xl font-bold font-headline text-foreground mb-4">
-                Settings
-            </h1>
+            <PageHeader title="Settings" />
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">

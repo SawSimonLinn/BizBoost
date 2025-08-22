@@ -17,6 +17,7 @@ import { AiInsights } from '@/components/dashboard/ai-insights';
 import { FeeConfigurator } from '@/components/dashboard/fee-configurator';
 import { TakeHomeCalculator } from '@/components/dashboard/take-home-calculator';
 import { useAppContext } from '@/context/app-context';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function DashboardPage() {
   const {

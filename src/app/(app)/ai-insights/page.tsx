@@ -2,6 +2,7 @@
 "use client"
 
 import { AiInsights } from "@/components/dashboard/ai-insights";
+import { PageHeader } from "@/components/page-header";
 import { useAppContext } from "@/context/app-context";
 
 export default function AiInsightsPage() {
@@ -27,9 +28,7 @@ export default function AiInsightsPage() {
 
     return (
          <div>
-            <h1 className="text-2xl font-bold font-headline text-foreground mb-4">
-                AI-Powered Insights
-            </h1>
+            <PageHeader title="AI-Powered Insights" />
             <AiInsights 
               pastSalesData={pastSalesForAI}
               periodsData={periodsDataForAI}

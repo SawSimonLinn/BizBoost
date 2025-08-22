@@ -1,6 +1,8 @@
+
 "use client"
 
 import { TakeHomeCalculator } from "@/components/dashboard/take-home-calculator";
+import { PageHeader } from "@/components/page-header";
 import { useAppContext } from "@/context/app-context";
 
 export default function PersonalFinancesPage() {
@@ -8,9 +10,7 @@ export default function PersonalFinancesPage() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold font-headline text-foreground mb-4">
-                Personal Finances
-            </h1>
+            <PageHeader title="Personal Finances" />
             <TakeHomeCalculator 
                 netEarnings={netEarningsAfterStaff}
                 personalExpenses={personalExpenses}

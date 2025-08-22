@@ -41,6 +41,7 @@ interface AppContextType {
   totalSales: number;
   totalOtherExpenses: number;
   royaltyFee: number;
+  inventoryCostValue: number;
   staffCost: number;
   netTakeHome: number;
   franchisorCut: number;
@@ -54,7 +55,6 @@ interface AppContextType {
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
 
-// Helper to get item from localStorage
 const getFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === "undefined") {
     return defaultValue;
@@ -73,7 +73,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = React.useState(true);
   const [isHydrated, setIsHydrated] = React.useState(false);
 
-  // Initialize state with mock data or from local storage if available
   const [periods, setPeriods] = React.useState<Period[]>(mockPeriods);
   const [activePeriodId, setActivePeriodId] = React.useState<string>(
     mockPeriods[mockPeriods.length - 1].id
@@ -84,7 +83,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [personalExpenses, setPersonalExpenses] =
     React.useState<PersonalExpense[]>(mockPersonalExpenses);
 
-  // Hydrate state from localStorage on client side
   React.useEffect(() => {
     setPeriods(getFromLocalStorage("bizboost_periods", mockPeriods));
     setActivePeriodId(
@@ -99,7 +97,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       getFromLocalStorage("bizboost_personalExpenses", mockPersonalExpenses)
     );
 
-    // Mock checking auth state
     setTimeout(() => {
       const storedUser = localStorage.getItem("bizboost_user");
       if (storedUser) {
@@ -111,7 +108,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true);
   }, []);
 
-  // Save to localStorage whenever state changes
   React.useEffect(() => {
     if (isHydrated) {
       localStorage.setItem("bizboost_periods", JSON.stringify(periods));
@@ -194,7 +190,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     costs: StaffCost[]
   ) => {
     if (!period) {
-      // Guard against undefined period during initial render
       period = mockPeriods[mockPeriods.length - 1];
     }
     const totalSales = period.weeklySales.reduce(
@@ -206,6 +201,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       (acc, curr) => acc + curr.amount,
       0
     );
+
+    const inventoryCostValue =
+      period.inventoryCostType === "percent"
+        ? (totalSales * period.inventoryCost) / 100
+        : period.inventoryCost;
+
     const staffCost = costs.reduce((acc, cost) => {
       if (cost.paymentType === "hourly") {
         return acc + (cost.hours ?? 0) * (cost.wageRate ?? 0);
@@ -214,17 +215,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 0);
 
     const netTakeHome =
-      totalSales - royaltyFee - period.inventoryCost - totalOtherExpenses;
+      totalSales - royaltyFee - inventoryCostValue - totalOtherExpenses;
     const netEarningsAfterStaff = netTakeHome - staffCost;
-    const grossProfit = totalSales - period.inventoryCost;
+    const grossProfit = totalSales - inventoryCostValue;
     const franchisorCut =
-      royaltyFee + totalOtherExpenses + period.inventoryCost + staffCost;
+      royaltyFee + totalOtherExpenses + inventoryCostValue + staffCost;
     const ownerCut = totalSales - franchisorCut;
 
     return {
       totalSales,
       royaltyFee,
       totalOtherExpenses,
+      inventoryCostValue,
       staffCost,
       netTakeHome,
       netEarningsAfterStaff,
@@ -236,13 +238,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const historicalData = React.useMemo(() => {
     return periods.map((period) => {
-      // Recalculate staff costs for each historical period if they were different.
-      // For this implementation, we assume current staff costs apply to all,
-      // but a more complex app might store historical staff costs per period.
       const { totalSales, grossProfit, netEarningsAfterStaff } =
         calculateMetricsForPeriod(period, feeConfig, staffCosts);
       return {
-        name: period.name.split(" ")[0], // e.g., "January"
+        name: period.name.split(" ")[0],
         Sales: totalSales,
         "Gross Profit": grossProfit,
         "Net Profit": netEarningsAfterStaff,
@@ -254,6 +253,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     totalSales,
     royaltyFee,
     totalOtherExpenses,
+    inventoryCostValue,
     staffCost,
     netTakeHome,
     franchisorCut,
@@ -301,6 +301,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     totalSales,
     totalOtherExpenses,
     royaltyFee,
+    inventoryCostValue,
     staffCost,
     netTakeHome,
     franchisorCut,
@@ -313,8 +314,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (!isHydrated) {
-    // On server-side render, return the provider with default values
-    // to prevent hydration mismatch
     const defaultContext = {
       ...value,
       periods: mockPeriods,
@@ -322,6 +321,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       feeConfig: mockFeeConfig,
       staffCosts: mockStaffCosts,
       personalExpenses: mockPersonalExpenses,
+      inventoryCostValue:
+        mockPeriods[mockPeriods.length - 1].inventoryCostType === "percent"
+          ? (mockPeriods[mockPeriods.length - 1].weeklySales.reduce(
+              (a, b) => a + b,
+              0
+            ) *
+              mockPeriods[mockPeriods.length - 1].inventoryCost) /
+            100
+          : mockPeriods[mockPeriods.length - 1].inventoryCost,
     };
     return (
       <AppContext.Provider value={defaultContext}>

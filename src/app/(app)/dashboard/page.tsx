@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { DollarSign, TrendingDown, Building, Wallet } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { KpiCard } from "@/components/dashboard/kpi-card";
@@ -12,6 +13,9 @@ import { FeeConfigurator } from "@/components/dashboard/fee-configurator";
 import { TakeHomeCalculator } from "@/components/dashboard/take-home-calculator";
 import { useAppContext } from "@/context/app-context";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { WelcomeModal } from "@/components/dashboard/welcome-modal";
+
+const WELCOME_MODAL_SEEN_KEY = "bizboost_welcomeModalSeen";
 
 export default function DashboardPage() {
   const {
@@ -35,6 +39,20 @@ export default function DashboardPage() {
     ownerCut,
     netEarningsAfterStaff,
   } = useAppContext();
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const hasSeenModal = localStorage.getItem(WELCOME_MODAL_SEEN_KEY);
+    if (!hasSeenModal) {
+      setIsWelcomeModalOpen(true);
+    }
+  }, []);
+
+  const handleWelcomeModalClose = () => {
+    localStorage.setItem(WELCOME_MODAL_SEEN_KEY, "true");
+    setIsWelcomeModalOpen(false);
+  };
 
   const kpiData = {
     revenue: totalSales,
@@ -71,6 +89,15 @@ export default function DashboardPage() {
 
   return (
     <>
+      <WelcomeModal
+        isOpen={isWelcomeModalOpen}
+        onClose={handleWelcomeModalClose}
+        activePeriod={activePeriod}
+        onPeriodChange={handlePeriodChange}
+        feeConfig={feeConfig}
+        onFeeChange={handleFeeConfigChange}
+        totalSales={totalSales}
+      />
       <DashboardHeader
         periods={periods}
         activePeriod={activePeriod}

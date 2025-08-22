@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -37,184 +36,225 @@ import { Switch } from "@/components/ui/switch";
 import type { StaffCost } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
-const staffCostSchema = z.object({
-  employeeName: z.string().min(1, "Employee name is required"),
-  paymentType: z.enum(['hourly', 'salary']),
-  hours: z.union([z.number(), z.string()]).optional(),
-  wageRate: z.union([z.number(), z.string()]).optional(),
-  salary: z.union([z.number(), z.string()]).optional(),
-}).refine(data => {
-    if (data.paymentType === 'hourly') {
-        return data.hours && parseFloat(data.hours as string) > 0 && data.wageRate && parseFloat(data.wageRate as string) > 0;
-    }
-    if (data.paymentType === 'salary') {
+const staffCostSchema = z
+  .object({
+    employeeName: z.string().min(1, "Employee name is required"),
+    paymentType: z.enum(["hourly", "salary"]),
+    hours: z.union([z.number(), z.string()]).optional(),
+    wageRate: z.union([z.number(), z.string()]).optional(),
+    salary: z.union([z.number(), z.string()]).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.paymentType === "hourly") {
+        return (
+          data.hours &&
+          parseFloat(data.hours as string) > 0 &&
+          data.wageRate &&
+          parseFloat(data.wageRate as string) > 0
+        );
+      }
+      if (data.paymentType === "salary") {
         return data.salary && parseFloat(data.salary as string) > 0;
+      }
+      return false;
+    },
+    {
+      message: "Please provide valid details for the selected payment type.",
+      path: ["hours"],
     }
-    return false;
-}, {
-    message: "Please provide valid details for the selected payment type.",
-    path: ['hours'] 
-});
+  );
 
 type StaffCostFormValues = z.infer<typeof staffCostSchema>;
 
-
-const StaffCostForm = ({ 
-    onSave, 
-    onClose, 
-    defaultValues 
-}: { 
-    onSave: (data: StaffCost) => void;
-    onClose: () => void;
-    defaultValues: Partial<StaffCost>;
+const StaffCostForm = ({
+  onSave,
+  onClose,
+  defaultValues,
+}: {
+  onSave: (data: StaffCost) => void;
+  onClose: () => void;
+  defaultValues: Partial<StaffCost>;
 }) => {
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<StaffCostFormValues>({
-        resolver: zodResolver(staffCostSchema),
-        defaultValues: {
-            employeeName: defaultValues.employeeName ?? "",
-            paymentType: defaultValues.paymentType ?? 'hourly',
-            hours: defaultValues.hours === 0 ? '' : defaultValues.hours,
-            wageRate: defaultValues.wageRate === 0 ? '' : defaultValues.wageRate,
-            salary: defaultValues.salary === 0 ? '' : defaultValues.salary,
-        },
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<StaffCostFormValues>({
+    resolver: zodResolver(staffCostSchema),
+    defaultValues: {
+      employeeName: defaultValues.employeeName ?? "",
+      paymentType: defaultValues.paymentType ?? "hourly",
+      hours: defaultValues.hours === 0 ? "" : defaultValues.hours,
+      wageRate: defaultValues.wageRate === 0 ? "" : defaultValues.wageRate,
+      salary: defaultValues.salary === 0 ? "" : defaultValues.salary,
+    },
+  });
+
+  const paymentType = useWatch({ control, name: "paymentType" });
+
+  const onSubmit = (data: StaffCostFormValues) => {
+    onSave({
+      id: defaultValues.id || `staff-${Date.now()}`,
+      employeeName: data.employeeName,
+      paymentType: data.paymentType,
+      hours: parseFloat(data.hours as string) || 0,
+      wageRate: parseFloat(data.wageRate as string) || 0,
+      salary: parseFloat(data.salary as string) || 0,
     });
-    
-    const paymentType = useWatch({ control, name: 'paymentType' });
+    reset();
+    onClose();
+  };
 
-    const onSubmit = (data: StaffCostFormValues) => {
-        onSave({
-            id: defaultValues.id || `staff-${Date.now()}`,
-            employeeName: data.employeeName,
-            paymentType: data.paymentType,
-            hours: parseFloat(data.hours as string) || 0,
-            wageRate: parseFloat(data.wageRate as string) || 0,
-            salary: parseFloat(data.salary as string) || 0,
-        });
-        reset();
-        onClose();
-    };
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      id="staff-cost-form"
+      className="space-y-4"
+    >
+      <DialogHeader>
+        <DialogTitle>
+          {defaultValues.id ? "Edit" : "Add"} Staff Cost
+        </DialogTitle>
+      </DialogHeader>
 
-    return (
-        <form onSubmit={handleSubmit(onSubmit)} id="staff-cost-form" className="space-y-4">
-          <DialogHeader>
-            <DialogTitle>{defaultValues.id ? 'Edit' : 'Add'} Staff Cost</DialogTitle>
-          </DialogHeader>
-          
-          <div>
-            <Label htmlFor="employeeName">Employee Name</Label>
-            <Controller
-              name="employeeName"
-              control={control}
-              render={({ field }) => <Input {...field} id="employeeName" />}
+      <div>
+        <Label htmlFor="employeeName">Employee Name</Label>
+        <Controller
+          name="employeeName"
+          control={control}
+          render={({ field }) => <Input {...field} id="employeeName" />}
+        />
+        {errors.employeeName && (
+          <p className="text-sm text-destructive mt-1">
+            {errors.employeeName.message}
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Label htmlFor="paymentTypeSwitch">Hourly</Label>
+        <Controller
+          name="paymentType"
+          control={control}
+          render={({ field }) => (
+            <Switch
+              id="paymentTypeSwitch"
+              checked={field.value === "salary"}
+              onCheckedChange={(checked) =>
+                field.onChange(checked ? "salary" : "hourly")
+              }
             />
-             {errors.employeeName && <p className="text-sm text-destructive mt-1">{errors.employeeName.message}</p>}
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="paymentTypeSwitch">Hourly</Label>
-            <Controller
-               name="paymentType"
-               control={control}
-               render={({ field }) => (
-                 <Switch
-                    id="paymentTypeSwitch"
-                    checked={field.value === 'salary'}
-                    onCheckedChange={(checked) => field.onChange(checked ? 'salary' : 'hourly')}
-                  />
-               )}
-            />
-            <Label htmlFor="paymentTypeSwitch">Monthly Salary</Label>
-          </div>
-
-          {paymentType === 'hourly' ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="hours">Hours</Label>
-                <Controller
-                  name="hours"
-                  control={control}
-                  render={({ field }) => <Input {...field} id="hours" type="number" step="0.5" />}
-                />
-              </div>
-              <div>
-                <Label htmlFor="wageRate">Wage Rate ($/hr)</Label>
-                <Controller
-                  name="wageRate"
-                  control={control}
-                  render={({ field }) => (
-                    <Input {...field} id="wageRate" type="number" step="0.01" />
-                  )}
-                />
-              </div>
-            </div>
-          ) : (
-             <div>
-                <Label htmlFor="salary">Monthly Salary</Label>
-                <Controller
-                  name="salary"
-                  control={control}
-                  render={({ field }) => (
-                    <Input {...field} id="salary" type="number" step="0.01" />
-                  )}
-                />
-              </div>
           )}
-           {errors.hours && <p className="text-sm text-destructive mt-1">{errors.hours.message}</p>}
+        />
+        <Label htmlFor="paymentTypeSwitch">Monthly Salary</Label>
+      </div>
 
-          <DialogFooter>
-            <DialogClose asChild>
-                <Button type="button" variant="ghost">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save</Button>
-          </DialogFooter>
-        </form>
-    )
-}
+      {paymentType === "hourly" ? (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="hours">Hours/Days</Label>
+            <Controller
+              name="hours"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} id="hours" type="number" step="0.5" />
+              )}
+            />
+          </div>
+          <div>
+            <Label htmlFor="wageRate">Wage Rate ($/hr or $/day)</Label>
+            <Controller
+              name="wageRate"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} id="wageRate" type="number" step="0.01" />
+              )}
+            />
+          </div>
+        </div>
+      ) : (
+        <div>
+          <Label htmlFor="salary">Monthly Salary</Label>
+          <Controller
+            name="salary"
+            control={control}
+            render={({ field }) => (
+              <Input {...field} id="salary" type="number" step="0.01" />
+            )}
+          />
+        </div>
+      )}
+      {errors.hours && (
+        <p className="text-sm text-destructive mt-1">{errors.hours.message}</p>
+      )}
 
-export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: StaffCost[]; setStaffCosts: React.Dispatch<React.SetStateAction<StaffCost[]>> }) {
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button type="button" variant="ghost">
+            Cancel
+          </Button>
+        </DialogClose>
+        <Button type="submit">Save</Button>
+      </DialogFooter>
+    </form>
+  );
+};
+
+export function StaffScheduler({
+  staffCosts,
+  setStaffCosts,
+}: {
+  staffCosts: StaffCost[];
+  setStaffCosts: React.Dispatch<React.SetStateAction<StaffCost[]>>;
+}) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingCost, setEditingCost] = React.useState<StaffCost | null>(null);
 
   const handleSave = (data: StaffCost) => {
     if (editingCost) {
-        setStaffCosts(prev => prev.map(c => c.id === data.id ? data : c));
+      setStaffCosts((prev) => prev.map((c) => (c.id === data.id ? data : c)));
     } else {
-        setStaffCosts(prev => [...prev, data]);
+      setStaffCosts((prev) => [...prev, data]);
     }
     closeDialog();
   };
-  
+
   const handleRemove = (id: string) => {
     setStaffCosts(staffCosts.filter((cost) => cost.id !== id));
   };
-  
+
   const openDialog = (cost: StaffCost | null = null) => {
     setEditingCost(cost);
     setIsDialogOpen(true);
-  }
+  };
 
   const closeDialog = () => {
     setEditingCost(null);
     setIsDialogOpen(false);
-  }
+  };
 
-  const totalWageCost = staffCosts.reduce(
-    (acc, cost) => {
-        if (cost.paymentType === 'hourly') {
-            return acc + (cost.hours ?? 0) * (cost.wageRate ?? 0);
-        }
-        return acc + (cost.salary ?? 0);
-    }, 0
-  );
-  
+  const totalWageCost = staffCosts.reduce((acc, cost) => {
+    if (cost.paymentType === "hourly") {
+      return acc + (cost.hours ?? 0) * (cost.wageRate ?? 0);
+    }
+    return acc + (cost.salary ?? 0);
+  }, 0);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="font-headline flex items-center gap-2"><Users />Staff Costs & Scheduling</CardTitle>
+          <CardTitle className="font-headline flex items-center gap-2">
+            <Users />
+            Staff Costs & Scheduling
+          </CardTitle>
           <CardDescription>
             Manage shifts and see the impact on your costs. Total:{" "}
-            <span className="font-bold text-primary">{formatCurrency(totalWageCost)}</span>
+            <span className="font-bold text-primary">
+              {formatCurrency(totalWageCost)}
+            </span>
           </CardDescription>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -224,10 +264,10 @@ export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: Staf
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <StaffCostForm 
-              onSave={handleSave} 
-              onClose={closeDialog} 
-              defaultValues={editingCost || { paymentType: 'hourly' }} 
+            <StaffCostForm
+              onSave={handleSave}
+              onClose={closeDialog}
+              defaultValues={editingCost || { paymentType: "hourly" }}
             />
           </DialogContent>
         </Dialog>
@@ -244,39 +284,45 @@ export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: Staf
           </TableHeader>
           <TableBody>
             {staffCosts.map((cost) => {
-              const costValue = cost.paymentType === 'hourly' 
-                ? (cost.hours ?? 0) * (cost.wageRate ?? 0)
-                : cost.salary ?? 0;
+              const costValue =
+                cost.paymentType === "hourly"
+                  ? (cost.hours ?? 0) * (cost.wageRate ?? 0)
+                  : cost.salary ?? 0;
 
               return (
-                 <TableRow key={cost.id}>
-                    <TableCell>{cost.employeeName}</TableCell>
-                    <TableCell className="capitalize">{cost.paymentType}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(costValue)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                       <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDialog(cost)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemove(cost.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
+                <TableRow key={cost.id}>
+                  <TableCell>{cost.employeeName}</TableCell>
+                  <TableCell className="capitalize">
+                    {cost.paymentType}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(costValue)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openDialog(cost)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemove(cost.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              )
+              );
             })}
-             {staffCosts.length === 0 && (
+            {staffCosts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
                   No staff costs added for this period.
                 </TableCell>
               </TableRow>
@@ -287,5 +333,3 @@ export function StaffScheduler({ staffCosts, setStaffCosts }: { staffCosts: Staf
     </Card>
   );
 }
-
-    

@@ -208,11 +208,12 @@ export function FeeConfigurator({
   };
 
   const handleInventoryCostTypeChange = (checked: boolean) => {
-    onPeriodChange(
-      activePeriod.id,
-      "inventoryCostType",
-      checked ? "percent" : "amount"
-    );
+    const newType = checked ? "percent" : "amount";
+    onPeriodChange(activePeriod.id, "inventoryCostType", newType);
+
+    // Reset the cost value to a sensible default when switching
+    const newCost = newType === "percent" ? 22 : 0;
+    onPeriodChange(activePeriod.id, "inventoryCost", newCost);
   };
 
   return (
@@ -228,9 +229,8 @@ export function FeeConfigurator({
         </CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        {/* Period Data */}
+        {/* Period Data Inputs */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-primary">Period Data</h3>
           <div className="space-y-1">
             <Label htmlFor="total-sales" className="text-xs font-medium">
               Total Monthly Sales
@@ -339,12 +339,11 @@ export function FeeConfigurator({
           </div>
         </div>
 
-        {/* Franchise Fees */}
+        {/* Franchise Fee Inputs */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-primary">Franchise Fees</h3>
           <div className="space-y-1">
             <Label htmlFor="royalty-fee" className="text-xs font-medium">
-              Royalty Fee
+              Your Percentage (%)
             </Label>
             <div className="relative">
               <Input

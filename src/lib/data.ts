@@ -51,7 +51,7 @@ const generatePeriods = () => {
 export const mockPeriods: Period[] = generatePeriods();
 
 export const mockFeeConfig: FeeConfig = {
-  royaltyPercent: 36,
+  royaltyPercent: 64,
 };
 
 export const mockStaffCosts: StaffCost[] = [
@@ -61,12 +61,6 @@ export const mockStaffCosts: StaffCost[] = [
     paymentType: "hourly",
     hours: 160,
     wageRate: 20,
-  },
-  {
-    id: "staff-2",
-    employeeName: "Jane Smith",
-    paymentType: "salary",
-    salary: 4500,
   },
 ];
 

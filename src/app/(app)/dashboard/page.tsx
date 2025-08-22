@@ -118,7 +118,7 @@ export default function DashboardPage() {
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-primary">
             <LayoutGrid className="h-5 w-5" />
-            Net Deposit after company Deductions
+            Net Deposit After Company Deductions
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">

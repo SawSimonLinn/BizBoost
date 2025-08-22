@@ -1,8 +1,7 @@
+"use client";
 
-"use client"
-
-import { usePathname } from 'next/navigation'
-import Link from 'next/link';
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   LayoutGrid,
   Settings,
@@ -10,52 +9,70 @@ import {
   PieChart,
   Lightbulb,
   Book,
-} from 'lucide-react';
-import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, useSidebar } from '@/components/ui/sidebar';
-import { Logo } from '@/components/logo';
+  Landmark,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Logo } from "@/components/logo";
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+    {
+      href: "/financial-breakdown",
+      label: "Financial Breakdown",
+      icon: Landmark,
+    },
     { href: "/personal-finances", label: "Personal Finances", icon: Wallet },
     { href: "/performance", label: "Performance", icon: PieChart },
     { href: "/annual-report", label: "Annual Report", icon: Book },
     { href: "/ai-insights", label: "AI Insights", icon: Lightbulb },
     { href: "/settings", label: "Settings", icon: Settings },
-  ]
+  ];
 
   const handleLinkClick = () => {
     setOpenMobile(false);
-  }
+  };
 
   return (
-    <Sidebar 
-        side="left" 
-        collapsible="icon" 
-        className="border-r"
-        mobileSheetTitle="Menu"
+    <Sidebar
+      side="left"
+      collapsible="icon"
+      className="border-r"
+      mobileSheetTitle="Menu"
     >
-        <SidebarHeader>
-             <div className="flex items-center gap-2 p-2">
-                <Logo />
-                <h1 className="font-headline text-lg font-semibold text-primary group-data-[collapsible=icon]:hidden">BizBoost</h1>
-            </div>
-        </SidebarHeader>
-        <SidebarMenu>
-            {menuItems.map(item => (
-                <SidebarMenuItem key={item.href}>
-                    <Link href={item.href} onClick={handleLinkClick}>
-                        <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </SidebarMenuButton>
-                    </Link>
-                </SidebarMenuItem>
-            ))}
-        </SidebarMenu>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 p-2">
+          <Logo />
+          <h1 className="font-headline text-lg font-semibold text-primary group-data-[collapsible=icon]:hidden">
+            BizBoost
+          </h1>
+        </div>
+      </SidebarHeader>
+      <SidebarMenu>
+        {menuItems.map((item) => (
+          <SidebarMenuItem key={item.href}>
+            <Link href={item.href} onClick={handleLinkClick}>
+              <SidebarMenuButton
+                isActive={pathname === item.href}
+                tooltip={item.label}
+              >
+                <item.icon />
+                <span>{item.label}</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
     </Sidebar>
-  )
+  );
 }

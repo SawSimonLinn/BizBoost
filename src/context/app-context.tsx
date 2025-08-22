@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { Period, FeeConfig, StaffCost, PersonalExpense, HistoricalData, User } from '@/types';
+import type { Period, FeeConfig, StaffCost, PersonalExpense, HistoricalData, User, AnnualData } from '@/types';
 import { mockPeriods, mockFeeConfig, mockStaffCosts, mockPersonalExpenses } from '@/lib/data';
 
 interface AppContextType {
@@ -36,6 +36,7 @@ interface AppContextType {
     grossMargin: number;
     netMargin: number;
     historicalData: HistoricalData[];
+    annualData: AnnualData;
 }
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
@@ -161,7 +162,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
         const totalSales = period.weeklySales.reduce((acc, curr) => acc + (curr || 0), 0);
         
-        // The user enters the percentage they keep. The royalty fee is what's left.
         const royaltyFeePercentage = 100 - config.royaltyPercent;
         const royaltyFee = (totalSales * royaltyFeePercentage) / 100;
         
@@ -180,10 +180,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             }, 0
         );
 
-        const netTakeHome = totalSales - royaltyFee - inventoryCostValue - totalOtherExpenses;
+        const operatingCosts = inventoryCostValue + totalOtherExpenses;
+        const netTakeHome = totalSales - royaltyFee - operatingCosts;
         const netEarningsAfterStaff = netTakeHome - staffCost;
         const grossProfit = totalSales - inventoryCostValue;
-        const franchisorCut = royaltyFee + totalOtherExpenses + inventoryCostValue + staffCost;
+        const franchisorCut = royaltyFee + operatingCosts + staffCost;
         const ownerCut = totalSales - franchisorCut;
 
         return {
@@ -193,10 +194,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             inventoryCostValue,
             staffCost,
             netTakeHome,
-            netEarningsAfterStaff,
             grossProfit,
             franchisorCut,
-            ownerCut
+            ownerCut,
+            operatingCosts,
+            netEarningsAfterStaff
         };
     };
 
@@ -212,6 +214,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         });
     }, [periods, feeConfig, staffCosts]);
 
+    const annualData = React.useMemo(() => {
+        const result: AnnualData = {
+            totalRevenue: 0,
+            totalFranchiseFees: 0,
+            totalOperatingCosts: 0,
+            totalNetTakeHome: 0,
+        };
+
+        periods.forEach(period => {
+            const { totalSales, royaltyFee, operatingCosts, netEarningsAfterStaff } = calculateMetricsForPeriod(period, feeConfig, staffCosts);
+            result.totalRevenue += totalSales;
+            result.totalFranchiseFees += royaltyFee;
+            result.totalOperatingCosts += operatingCosts;
+            result.totalNetTakeHome += netEarningsAfterStaff;
+        });
+
+        return result;
+    }, [periods, feeConfig, staffCosts]);
+
     const {
         totalSales,
         royaltyFee,
@@ -221,10 +242,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         netTakeHome,
         franchisorCut,
         ownerCut,
-        netEarningsAfterStaff,
-        grossProfit
+        grossProfit,
+        netEarningsAfterStaff
     } = calculateMetricsForPeriod(activePeriod, feeConfig, staffCosts);
-
+    
     const grossMargin = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
     const netMargin = totalSales > 0 ? (netEarningsAfterStaff / totalSales) * 100 : 0;
     
@@ -266,7 +287,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         grossProfit,
         grossMargin,
         netMargin,
-        historicalData
+        historicalData,
+        annualData,
     };
     
     if (!isHydrated) {
@@ -303,3 +325,5 @@ export function useAuth() {
     const { user, loading, login, signup, logout } = context;
     return { user, loading, login, signup, logout };
 }
+
+    

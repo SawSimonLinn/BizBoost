@@ -1,13 +1,13 @@
 {
-  "Franchise Performance Dashboard": "แฟรนไชส์စွမ်းဆောင်ရည်ဒက်ชบอร์ด",
+  "Franchise Performance Dashboard": "Franchise စွမ်းဆောင်ရည် ဒက်ရှ်ဘုတ်",
   "Showing data for:": "အတွက်ဒေတာကိုပြသခြင်း:",
   "Total Revenue": "စုစုပေါင်းဝင်ငွေ",
   "Franchise Fees": "Franchise အခကြေးငွေ",
   "Operating Costs": "လုပ်ငန်းလည်ပတ်မှုကုန်ကျစရိတ်",
-  "Net Take-Home": "အသားတင်အိမ်យកငွေ",
+  "Net Take-Home": "အသားတင်ရငွေ",
   "vs last period": "ယခင်ကာလနှင့်နှိုင်းယှဉ်ပါ",
   "Data Input & Fee Configuration": "ဒေတာထည့်သွင်းခြင်းနှင့်အခကြေးငွေဖွဲ့စည်းမှု",
-  "Adjust your period data and fee structure here to see real-time updates.": "အချိန်နှင့်တပြေးညီမွမ်းမံမှုများကိုကြည့်ရှုရန်သင်၏ကာလဒေတာနှင့်အခကြေးငွေဖွဲ့စည်းပုံကိုဤနေရာတွင်ปรับရန်။",
+  "Adjust your period data and fee structure here to see real-time updates.": "အချိန်နှင့်တပြေးညီမွမ်းမံမှုများကိုကြည့်ရှုရန်သင်၏ကာလဒေတာနှင့်အခကြေးငွေဖွဲ့စည်းပုံကိုဤနေရာတွင်ပြင်ဆင်ပါ။",
   "Total Monthly Sales": "စုစုပေါင်းလစဉ်ရောင်းအား",
   "Enter Weekly Sales for": "အတွက်အပတ်စဉ်ရောင်းအားကိုထည့်ပါ",
   "Week": "အပတ်",
@@ -75,5 +75,9 @@
   "Sign Up": "စာရင်းသွင်းပါ",
   "Access your saved dashboard and settings.": "သင်၏သိမ်းဆည်းထားသောဒက်ช်ဘอร์ดနှင့်ဆက်တင်များကိုဝင်ရောက်ကြည့်ရှုပါ။",
   "Or continue with": "သို့မဟုတ်ဆက်လုပ်ပါ",
-  "Create an account to save your progress.": "သင်၏တိုးတက်မှုကိုသိမ်းဆည်းရန်အကောင့်တစ်ခုဖန်တီးပါ။"
+  "Create an account to save your progress.": "သင်၏တိုးတက်မှုကိုသိမ်းဆည်းရန်အကောင့်တစ်ခုဖန်တီးပါ။",
+  "Annual Report": "နှစ်စဉ်အစီရင်ခံစာ",
+  "Monthly Data Input": "လစဉ်အချက်အလက်ထည့်သွင်းခြင်း",
+  "Enter or update your financial data for each month of the year.": "နှစ်စဉ်တစ်လချင်းစီအတွက်သင်၏ဘဏ္ဍာရေးဆိုင်ရာအချက်အလက်များကိုထည့်သွင်းပါသို့မဟုတ်အသစ်ပြောင်းပါ။",
+  "Month": "လ"
 }

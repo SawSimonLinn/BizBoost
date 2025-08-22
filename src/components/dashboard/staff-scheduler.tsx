@@ -40,21 +40,23 @@ import { formatCurrency } from "@/lib/utils";
 const staffCostSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
   paymentType: z.enum(['hourly', 'salary']),
-  hours: z.number().optional(),
-  wageRate: z.number().optional(),
-  salary: z.number().optional(),
+  hours: z.union([z.number(), z.string()]).optional(),
+  wageRate: z.union([z.number(), z.string()]).optional(),
+  salary: z.union([z.number(), z.string()]).optional(),
 }).refine(data => {
     if (data.paymentType === 'hourly') {
-        return data.hours !== undefined && data.hours > 0 && data.wageRate !== undefined && data.wageRate > 0;
+        return data.hours && parseFloat(data.hours as string) > 0 && data.wageRate && parseFloat(data.wageRate as string) > 0;
     }
     if (data.paymentType === 'salary') {
-        return data.salary !== undefined && data.salary > 0;
+        return data.salary && parseFloat(data.salary as string) > 0;
     }
     return false;
 }, {
     message: "Please provide valid details for the selected payment type.",
     path: ['hours'] 
 });
+
+type StaffCostFormValues = z.infer<typeof staffCostSchema>;
 
 
 const StaffCostForm = ({ 
@@ -66,23 +68,27 @@ const StaffCostForm = ({
     onClose: () => void;
     defaultValues: Partial<StaffCost>;
 }) => {
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof staffCostSchema>>({
+    const { control, handleSubmit, reset, formState: { errors } } = useForm<StaffCostFormValues>({
         resolver: zodResolver(staffCostSchema),
         defaultValues: {
             employeeName: defaultValues.employeeName ?? "",
             paymentType: defaultValues.paymentType ?? 'hourly',
-            hours: defaultValues.hours ?? 0,
-            wageRate: defaultValues.wageRate ?? 0,
-            salary: defaultValues.salary ?? 0,
+            hours: defaultValues.hours === 0 ? '' : defaultValues.hours,
+            wageRate: defaultValues.wageRate === 0 ? '' : defaultValues.wageRate,
+            salary: defaultValues.salary === 0 ? '' : defaultValues.salary,
         },
     });
     
     const paymentType = useWatch({ control, name: 'paymentType' });
 
-    const onSubmit = (data: z.infer<typeof staffCostSchema>) => {
+    const onSubmit = (data: StaffCostFormValues) => {
         onSave({
             id: defaultValues.id || `staff-${Date.now()}`,
-            ...data,
+            employeeName: data.employeeName,
+            paymentType: data.paymentType,
+            hours: parseFloat(data.hours as string) || 0,
+            wageRate: parseFloat(data.wageRate as string) || 0,
+            salary: parseFloat(data.salary as string) || 0,
         });
         reset();
         onClose();
@@ -127,7 +133,7 @@ const StaffCostForm = ({
                 <Controller
                   name="hours"
                   control={control}
-                  render={({ field }) => <Input {...field} id="hours" type="number" step="0.5" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />}
+                  render={({ field }) => <Input {...field} id="hours" type="number" step="0.5" />}
                 />
               </div>
               <div>
@@ -136,7 +142,7 @@ const StaffCostForm = ({
                   name="wageRate"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} id="wageRate" type="number" step="0.01" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                    <Input {...field} id="wageRate" type="number" step="0.01" />
                   )}
                 />
               </div>
@@ -148,7 +154,7 @@ const StaffCostForm = ({
                   name="salary"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} id="salary" type="number" step="0.01" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                    <Input {...field} id="salary" type="number" step="0.01" />
                   )}
                 />
               </div>

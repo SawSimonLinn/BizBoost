@@ -21,21 +21,30 @@ interface TakeHomeCalculatorProps {
   asCard?: boolean
 }
 
+type LocalExpense = Omit<PersonalExpense, 'amount'> & { amount: string | number };
+
 const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses }: Omit<TakeHomeCalculatorProps, 'asCard'>) => {
     const [newItem, setNewItem] = React.useState("")
-    const [newAmount, setNewAmount] = React.useState("")
-    const [savingsGoal, setSavingsGoal] = React.useState(10000)
-  
-    const totalPersonalExpenses = personalExpenses.reduce((acc, item) => acc + item.amount, 0)
+    const [newAmount, setNewAmount] = React.useState<string | number>("")
+    const [savingsGoal, setSavingsGoal] = React.useState<string | number>(10000)
+    
+    const [localExpenses, setLocalExpenses] = React.useState<LocalExpense[]>(personalExpenses)
+
+    React.useEffect(() => {
+        setLocalExpenses(personalExpenses)
+    }, [personalExpenses])
+
+    const totalPersonalExpenses = localExpenses.reduce((acc, item) => acc + (parseFloat(item.amount as string) || 0), 0)
     const remainingForSavings = netEarnings - totalPersonalExpenses
-    const monthsToGoal = savingsGoal > 0 && remainingForSavings > 0 ? Math.ceil(savingsGoal / remainingForSavings) : 0
+    const goalAmount = parseFloat(savingsGoal as string) || 0
+    const monthsToGoal = goalAmount > 0 && remainingForSavings > 0 ? Math.ceil(goalAmount / remainingForSavings) : 0
   
     const handleAddExpense = (e: React.FormEvent) => {
       e.preventDefault()
       if (newItem && newAmount) {
         setPersonalExpenses([
           ...personalExpenses,
-          { id: Date.now().toString(), name: newItem, amount: parseFloat(newAmount) },
+          { id: Date.now().toString(), name: newItem, amount: parseFloat(newAmount as string) || 0 },
         ])
         setNewItem("")
         setNewAmount("")
@@ -46,12 +55,26 @@ const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses 
       setPersonalExpenses(personalExpenses.filter(item => item.id !== id))
     }
   
-    const handleUpdateExpense = (id: string, field: 'name' | 'amount', value: string | number) => {
-      const numericValue = field === 'amount' ? parseFloat(value as string) || 0 : value;
-      setPersonalExpenses(prev => prev.map(exp =>
-          exp.id === id ? { ...exp, [field]: numericValue } : exp
-      ));
+    const handleUpdateExpense = (id: string, field: 'name' | 'amount', value: string) => {
+        const updatedExpenses = personalExpenses.map(exp =>
+            exp.id === id ? { ...exp, [field]: field === 'amount' ? parseFloat(value) || 0 : value } : exp
+        );
+        setPersonalExpenses(updatedExpenses);
     };
+
+    const handleLocalUpdate = (id: string, field: 'name' | 'amount', value: string) => {
+        setLocalExpenses(prev => prev.map(exp => 
+            exp.id === id ? { ...exp, [field]: value } : exp
+        ))
+    }
+
+    const handleBlur = (id: string, field: 'amount', value: string) => {
+        setPersonalExpenses(prev => prev.map(exp => 
+            exp.id === id ? { ...exp, [field]: parseFloat(value) || 0 } : exp
+        ))
+    }
+
+    const savingsGoalDisplay = savingsGoal === 0 ? '' : savingsGoal;
 
     return (
         <>
@@ -82,7 +105,7 @@ const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses 
                               </TableRow>
                           </TableHeader>
                           <TableBody>
-                              {personalExpenses.map(item => (
+                              {localExpenses.map(item => (
                                   <TableRow key={item.id}>
                                       <TableCell>
                                           <Input
@@ -96,7 +119,8 @@ const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses 
                                             <Input
                                               type="number"
                                               value={item.amount}
-                                              onChange={(e) => handleUpdateExpense(item.id, 'amount', e.target.value)}
+                                              onChange={(e) => handleLocalUpdate(item.id, 'amount', e.target.value)}
+                                              onBlur={(e) => handleBlur(item.id, 'amount', e.target.value)}
                                               className="h-8 pr-6 border-transparent hover:border-input focus:border-input text-right"
                                               step="0.01"
                                             />
@@ -136,7 +160,7 @@ const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses 
                   <div className="flex flex-wrap items-end gap-4">
                       <div className="flex-grow min-w-[200px]">
                           <Label htmlFor="savingsGoal">Goal Amount</Label>
-                          <Input id="savingsGoal" type="number" value={savingsGoal} onChange={e => setSavingsGoal(Number(e.target.value))} />
+                          <Input id="savingsGoal" type="number" value={savingsGoalDisplay} onChange={e => setSavingsGoal(e.target.value)} />
                       </div>
                       {monthsToGoal > 0 && (
                           <div className="text-center p-4 bg-accent/10 rounded-lg flex-grow">
@@ -144,7 +168,7 @@ const CalculatorContent = ({ netEarnings, personalExpenses, setPersonalExpenses 
                               <p className="text-2xl font-bold text-accent">{monthsToGoal}</p>
                           </div>
                       )}
-                      {remainingForSavings <= 0 && savingsGoal > 0 && (
+                      {remainingForSavings <= 0 && goalAmount > 0 && (
                         <div className="text-center p-4 bg-warning/10 rounded-lg flex-grow">
                           <p className="text-sm text-muted-foreground">Your expenses exceed your take-home pay.</p>
                         </div>
@@ -233,3 +257,5 @@ export function TakeHomeCalculator({ netEarnings, personalExpenses, setPersonalE
     </Card>
   )
 }
+
+    

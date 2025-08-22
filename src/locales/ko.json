@@ -76,5 +76,9 @@
     "Sign Up": "가입",
     "Access your saved dashboard and settings.": "저장된 대시보드 및 설정에 액세스하십시오.",
     "Or continue with": "또는 다음으로 계속",
-    "Create an account to save your progress.": "진행 상황을 저장하려면 계정을 만드십시오."
+    "Create an account to save your progress.": "진행 상황을 저장하려면 계정을 만드십시오.",
+    "Annual Report": "연간 보고서",
+    "Monthly Data Input": "월별 데이터 입력",
+    "Enter or update your financial data for each month of the year.": "연도의 각 월에 대한 재무 데이터를 입력하거나 업데이트하십시오.",
+    "Month": "월"
 }

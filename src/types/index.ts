@@ -45,3 +45,10 @@ export interface User {
     uid: string;
     email: string | null;
 }
+
+export interface AnnualData {
+    totalRevenue: number;
+    totalFranchiseFees: number;
+    totalOperatingCosts: number;
+    totalNetTakeHome: number;
+}

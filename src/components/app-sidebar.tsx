@@ -9,6 +9,7 @@ import {
   Wallet,
   PieChart,
   Lightbulb,
+  Book,
 } from 'lucide-react';
 import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, useSidebar } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
@@ -21,6 +22,7 @@ export function AppSidebar() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
     { href: "/personal-finances", label: "Personal Finances", icon: Wallet },
     { href: "/performance", label: "Performance", icon: PieChart },
+    { href: "/annual-report", label: "Annual Report", icon: Book },
     { href: "/ai-insights", label: "AI Insights", icon: Lightbulb },
     { href: "/settings", label: "Settings", icon: Settings },
   ]

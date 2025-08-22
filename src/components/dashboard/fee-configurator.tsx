@@ -45,10 +45,10 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
     const [isWeeklySalesDialogOpen, setIsWeeklySalesDialogOpen] = React.useState(false);
     const [isFeesDialogOpen, setIsFeesDialogOpen] = React.useState(false);
     
-    const [localWeeklySales, setLocalWeeklySales] = React.useState(activePeriod.weeklySales);
-    const [localOtherExpenses, setLocalOtherExpenses] = React.useState<OtherExpense[]>(activePeriod.otherExpenses);
+    const [localWeeklySales, setLocalWeeklySales] = React.useState<(number | string)[]>(activePeriod.weeklySales);
+    const [localOtherExpenses, setLocalOtherExpenses] = React.useState<(Omit<OtherExpense, 'amount'> & { amount: number | string })[]>(activePeriod.otherExpenses);
     const [newExpenseName, setNewExpenseName] = React.useState("");
-    const [newExpenseAmount, setNewExpenseAmount] = React.useState("");
+    const [newExpenseAmount, setNewExpenseAmount] = React.useState<number|string>("");
   
     React.useEffect(() => {
       setLocalWeeklySales(activePeriod.weeklySales);
@@ -56,41 +56,23 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
     }, [activePeriod]);
   
     const handleLocalWeeklySaleChange = (index: number, value: string) => {
-        const newWeeklySales = [...localWeeklySales];
-        const numericValue = value === '' ? 0 : parseFloat(value);
-      
-        if (isNaN(numericValue)) return;
-    
-        newWeeklySales[index] = numericValue;
-        
-        if (value === '') {
-          setLocalWeeklySales(newWeeklySales);
-          return;
-        }
-  
-        const subsequentWeeks = newWeeklySales.slice(index + 1);
-        if (subsequentWeeks.every(val => val === 0 || val === null || val === undefined || val === newWeeklySales[index-1])) {
-            for (let i = index + 1; i < newWeeklySales.length; i++) {
-              if (newWeeklySales[i] === 0 || newWeeklySales[i] === newWeeklySales[index-1]) {
-                 newWeeklySales[i] = numericValue;
-              }
-            }
-        }
-        setLocalWeeklySales(newWeeklySales);
-      };
+      const newWeeklySales = [...localWeeklySales];
+      newWeeklySales[index] = value;
+      setLocalWeeklySales(newWeeklySales);
+    };
 
     const handleTotalSalesChange = (value: string) => {
-        const numericValue = parseFloat(value);
-        if (isNaN(numericValue)) return;
-    
-        const numWeeks = activePeriod.weeklySales.length;
-        const evenSplit = numericValue / numWeeks;
-        const newWeeklySales = Array(numWeeks).fill(evenSplit);
-        onPeriodChange(activePeriod.id, 'weeklySales', newWeeklySales);
-      };
+      const numericValue = parseFloat(value) || 0;
+  
+      const numWeeks = activePeriod.weeklySales.length || 1;
+      const evenSplit = numericValue / numWeeks;
+      const newWeeklySales = Array(numWeeks).fill(evenSplit);
+      onPeriodChange(activePeriod.id, 'weeklySales', newWeeklySales);
+    };
     
     const handleSaveWeeklySales = () => {
-      onPeriodChange(activePeriod.id, 'weeklySales', localWeeklySales);
+      const newSales = localWeeklySales.map(sale => parseFloat(sale as string) || 0);
+      onPeriodChange(activePeriod.id, 'weeklySales', newSales);
       setIsWeeklySalesDialogOpen(false);
     }
   
@@ -100,17 +82,18 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
     }
   
     const handleSaveFees = () => {
-      onPeriodChange(activePeriod.id, 'otherExpenses', localOtherExpenses);
+      const newExpenses = localOtherExpenses.map(exp => ({...exp, amount: parseFloat(exp.amount as string) || 0}));
+      onPeriodChange(activePeriod.id, 'otherExpenses', newExpenses);
       setIsFeesDialogOpen(false);
     }
     
     const handleAddExpense = (e: React.FormEvent) => {
       e.preventDefault();
       if (newExpenseName && newExpenseAmount) {
-        const newExpense: OtherExpense = {
+        const newExpense = {
           id: `oe-${Date.now()}`,
           name: newExpenseName,
-          amount: parseFloat(newExpenseAmount),
+          amount: newExpenseAmount,
         };
         setLocalOtherExpenses(prev => [...prev, newExpense]);
         setNewExpenseName("");
@@ -118,7 +101,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
       }
     };
   
-    const handleUpdateExpense = (expenseId: string, field: 'name' | 'amount', value: string | number) => {
+    const handleUpdateExpense = (expenseId: string, field: 'name' | 'amount', value: string) => {
       setLocalOtherExpenses(prev => prev.map(exp => 
           exp.id === expenseId ? { ...exp, [field]: value } : exp
       ));
@@ -133,10 +116,9 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
     }, [activePeriod.otherExpenses]);
   
     const handleTotalOtherExpensesChange = (value: string) => {
-      const numericValue = parseFloat(value);
-      if (isNaN(numericValue)) return;
+      const numericValue = parseFloat(value) || 0;
   
-      const newOtherExpenses: OtherExpense[] = [
+      const newOtherExpenses: OtherExpense[] = value === '' ? [] : [
         {
           id: `oe-misc-${Date.now()}`,
           name: 'Miscellaneous Fees',
@@ -153,6 +135,10 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
         const newCost = newType === 'percent' ? 22 : 0;
         onPeriodChange(activePeriod.id, 'inventoryCost', newCost);
     }
+    
+    const inventoryCostDisplay = activePeriod.inventoryCost === 0 ? '' : activePeriod.inventoryCost;
+    const totalOtherExpensesDisplay = totalOtherExpenses === 0 ? '' : totalOtherExpenses;
+    const totalSalesDisplay = totalSales === 0 ? '' : totalSales;
   
     return (
       <Card>
@@ -171,7 +157,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
                       <Input 
                         id="total-sales"
                         type="number"
-                        value={totalSales} 
+                        value={totalSalesDisplay} 
                         onChange={(e) => handleTotalSalesChange(e.target.value)}
                         className="pr-12 text-base font-bold" 
                       />
@@ -213,7 +199,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
                             <Input
                             id="inventory-cost"
                             type="number"
-                            value={activePeriod.inventoryCost}
+                            value={inventoryCostDisplay}
                             onChange={(e) => onPeriodChange(activePeriod.id, 'inventoryCost', parseFloat(e.target.value) || 0)}
                             className="pr-12 text-base font-semibold"
                             />
@@ -254,7 +240,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
                       <Input 
                         id="total-additional-fees"
                         type="number"
-                        value={totalOtherExpenses}
+                        value={totalOtherExpensesDisplay}
                         onChange={(e) => handleTotalOtherExpensesChange(e.target.value)}
                         className="pr-12 text-base font-semibold" 
                        />
@@ -283,7 +269,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
                                        <Input 
                                           type="number" 
                                           value={exp.amount} 
-                                          onChange={(e) => handleUpdateExpense(exp.id, 'amount', parseFloat(e.target.value) || 0)}
+                                          onChange={(e) => handleUpdateExpense(exp.id, 'amount', e.target.value)}
                                           className="text-sm pr-8" 
                                           placeholder={t('Amount')}
                                           step="0.01"
@@ -303,7 +289,7 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
                             </div>
                             <div className="w-32">
                                  <Label htmlFor="new-expense-amount" className="text-xs font-medium">{t('Amount')}</Label>
-                                 <Input id="new-expense-amount" type="number" placeholder="$" value={newExpenseAmount} onChange={e => setNewAmount(e.target.value)} step="0.01" />
+                                 <Input id="new-expense-amount" type="number" placeholder="$" value={newExpenseAmount} onChange={e => setNewExpenseAmount(e.target.value)} step="0.01" />
                             </div>
                             <Button type="submit" size="icon"><PlusCircle className="h-4 w-4"/></Button>
                         </form>
@@ -320,3 +306,6 @@ const InputField = ({ id, label, value, onChange, unit, type = "number", classNa
       </Card>
     )
   }
+
+
+    

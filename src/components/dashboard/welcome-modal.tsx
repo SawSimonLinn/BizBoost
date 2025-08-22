@@ -43,7 +43,7 @@ export function WelcomeModal({
 }: WelcomeModalProps) {
   
   const [isWeeklySalesDialogOpen, setIsWeeklySalesDialogOpen] = React.useState(false);
-  const [localWeeklySales, setLocalWeeklySales] = React.useState(activePeriod.weeklySales);
+  const [localWeeklySales, setLocalWeeklySales] = React.useState<(string|number)[]>(activePeriod.weeklySales);
   const [numWeeks, setNumWeeks] = React.useState(activePeriod.weeklySales.length.toString());
 
 
@@ -53,12 +53,11 @@ export function WelcomeModal({
   }, [activePeriod]);
 
   const handleTotalSalesChange = (value: string) => {
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) return;
+    const numericValue = parseFloat(value) || 0;
 
-    const currentNumWeeks = activePeriod.weeklySales.length;
+    const currentNumWeeks = activePeriod.weeklySales.length || 1;
     const evenSplit = numericValue / currentNumWeeks;
-    const newWeeklySales = Array(currentNumWeeks).fill(evenSplit);
+    const newWeeklySales = value === '' ? Array(currentNumWeeks).fill(0) : Array(currentNumWeeks).fill(evenSplit);
     onPeriodChange(activePeriod.id, 'weeklySales', newWeeklySales);
   };
   
@@ -68,12 +67,13 @@ export function WelcomeModal({
 
   const handleLocalWeeklySaleChange = (index: number, value: string) => {
     const newWeeklySales = [...localWeeklySales];
-    newWeeklySales[index] = parseFloat(value) || 0;
+    newWeeklySales[index] = value;
     setLocalWeeklySales(newWeeklySales);
   };
 
   const handleSaveWeeklySales = () => {
-    onPeriodChange(activePeriod.id, 'weeklySales', localWeeklySales);
+    const newSales = localWeeklySales.map(s => parseFloat(s as string) || 0);
+    onPeriodChange(activePeriod.id, 'weeklySales', newSales);
     setIsWeeklySalesDialogOpen(false);
   };
 
@@ -81,12 +81,17 @@ export function WelcomeModal({
     const newWeekCount = parseInt(value, 10);
     setNumWeeks(value);
 
-    const oldTotal = localWeeklySales.reduce((a,b) => a+b, 0);
+    const oldTotal = localWeeklySales.map(s => parseFloat(s as string) || 0).reduce((a,b) => a+b, 0);
     const newWeeklyAverage = newWeekCount > 0 ? oldTotal / newWeekCount : 0;
     const newWeeklySales = Array(newWeekCount).fill(newWeeklyAverage);
 
     setLocalWeeklySales(newWeeklySales);
   }
+
+  const totalSalesDisplay = totalSales === 0 ? '' : totalSales;
+  const royaltyPercentDisplay = feeConfig.royaltyPercent === 0 ? '' : feeConfig.royaltyPercent;
+  const inventoryCostDisplay = activePeriod.inventoryCost === 0 ? '' : activePeriod.inventoryCost;
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -108,7 +113,7 @@ export function WelcomeModal({
                 <Input 
                     id="total-sales"
                     type="number"
-                    value={totalSales} 
+                    value={totalSalesDisplay} 
                     onChange={(e) => handleTotalSalesChange(e.target.value)}
                     className="pr-12 text-base font-bold" 
                 />
@@ -162,7 +167,7 @@ export function WelcomeModal({
             <InputField 
                 id="royalty-fee"
                 label="Your Percentage (%)"
-                value={feeConfig.royaltyPercent}
+                value={royaltyPercentDisplay}
                 onChange={(v) => onFeeChange('royaltyPercent', parseFloat(v) || 0)}
                 unit="%"
             />
@@ -174,7 +179,7 @@ export function WelcomeModal({
                         <Input
                         id="inventory-cost"
                         type="number"
-                        value={activePeriod.inventoryCost}
+                        value={inventoryCostDisplay}
                         onChange={(e) => onPeriodChange(activePeriod.id, 'inventoryCost', parseFloat(e.target.value) || 0)}
                         className="pr-12 text-base font-semibold"
                         />
@@ -203,4 +208,4 @@ export function WelcomeModal({
   );
 }
 
-
+    

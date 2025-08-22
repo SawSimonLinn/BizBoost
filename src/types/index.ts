@@ -1,4 +1,5 @@
 
+
 export interface OtherExpense {
   id: string;
   name: string;
@@ -37,4 +38,9 @@ export interface HistoricalData {
     Sales: number;
     "Gross Profit": number;
     "Net Profit": number;
+}
+
+export interface User {
+    uid: string;
+    email: string | null;
 }

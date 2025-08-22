@@ -1,3 +1,7 @@
+
+"use client"
+
+import * as React from 'react'
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset } from "@/components/ui/sidebar"
 
@@ -6,6 +10,7 @@ export default function AppLayout({
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <>
       <AppSidebar />

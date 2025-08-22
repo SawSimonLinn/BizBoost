@@ -1,4 +1,5 @@
 
+
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { Period } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -35,7 +36,9 @@ export function DashboardHeader({
             ))}
           </SelectContent>
         </Select>
-        <SidebarTrigger />
+        <div className="md:hidden">
+          <SidebarTrigger />
+        </div>
       </div>
     </header>
   )

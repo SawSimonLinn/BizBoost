@@ -1,9 +1,11 @@
+
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils"
+import { useI18n } from "@/context/i18n-context"
 
 interface TakeHomeTierProps {
   currentTakeHome: number
@@ -11,17 +13,19 @@ interface TakeHomeTierProps {
 }
 
 export function TakeHomeTier({ currentTakeHome, tiers }: TakeHomeTierProps) {
+  const { t } = useI18n();
+
   const getTierInfo = () => {
     if (currentTakeHome >= tiers.best) {
-      return { label: "Best", textClass: "text-success", progressClass: "bg-success", progress: 100 }
+      return { label: t("Best"), textClass: "text-success", progressClass: "bg-success", progress: 100 }
     }
     if (currentTakeHome >= tiers.good) {
-      return { label: "Good", textClass: "text-primary", progressClass: "bg-primary", progress: 66 }
+      return { label: t("Good"), textClass: "text-primary", progressClass: "bg-primary", progress: 66 }
     }
     if (currentTakeHome >= tiers.low) {
-      return { label: "Low", textClass: "text-warning", progressClass: "bg-warning", progress: 33 }
+      return { label: t("Low"), textClass: "text-warning", progressClass: "bg-warning", progress: 33 }
     }
-    return { label: "Below Low", textClass: "text-destructive", progressClass: "bg-destructive", progress: 10 }
+    return { label: t("Below Low"), textClass: "text-destructive", progressClass: "bg-destructive", progress: 10 }
   }
 
   const { label, textClass, progressClass, progress } = getTierInfo()
@@ -29,9 +33,9 @@ export function TakeHomeTier({ currentTakeHome, tiers }: TakeHomeTierProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Take-Home Tier</CardTitle>
+        <CardTitle className="font-headline">{t('Take-Home Tier')}</CardTitle>
         <CardDescription>
-          Your current take-home pay is <span className={cn("font-bold", textClass)}>{label}</span>.
+          {t('Your current take-home pay is')} <span className={cn("font-bold", textClass)}>{label}</span>.
         </CardDescription>
       </CardHeader>
       <CardContent>

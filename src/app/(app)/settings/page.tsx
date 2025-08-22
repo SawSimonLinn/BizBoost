@@ -13,6 +13,7 @@ import { AppleAuthButton } from "@/components/auth/apple-auth-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EmailSignupForm } from "@/components/auth/email-signup-form";
 import { Separator } from "@/components/ui/separator";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 
 export default function SettingsPage() {
@@ -21,6 +22,15 @@ export default function SettingsPage() {
     return (
         <div>
             <PageHeader title="Settings" />
+             <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle>Language</CardTitle>
+                    <CardDescription>Choose your preferred language.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <LanguageSwitcher />
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Account</CardTitle>

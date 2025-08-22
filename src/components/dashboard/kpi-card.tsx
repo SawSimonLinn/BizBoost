@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+import { useI18n } from "@/context/i18n-context"
 
 interface KpiCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface KpiCardProps {
 }
 
 export function KpiCard({ title, value, icon: Icon, trend, isPrimary = false }: KpiCardProps) {
+  const { t } = useI18n();
   return (
     <Card className={cn(
       "relative overflow-hidden",
@@ -33,7 +35,7 @@ export function KpiCard({ title, value, icon: Icon, trend, isPrimary = false }: 
             <ArrowUp className="h-3 w-3 text-success" /> :
             <ArrowDown className="h-3 w-3 text-destructive" />
           }
-          <span>vs last period</span>
+          <span>{t('vs last period')}</span>
         </div>
       </CardContent>
     </Card>

@@ -1,4 +1,5 @@
-import type { Period, FeeConfig, StaffCost, PersonalExpense } from "@/types";
+
+import type { Period, FeeConfig, StaffCost, PersonalExpense } from '@/types';
 
 const generatePeriods = () => {
   const periods: Period[] = [];
@@ -27,7 +28,7 @@ const generatePeriods = () => {
         name: `${month.name} ${currentYear}`,
         weeklySales: Array(month.weeks).fill(0),
         inventoryCost: 0,
-        inventoryCostType: "amount",
+        inventoryCostType: 'amount',
         otherExpenses: [],
       };
       periods.push(newPeriod);
@@ -38,11 +39,9 @@ const generatePeriods = () => {
   if (periods.length > 0) {
     const latestPeriod = periods[periods.length - 1];
     const monthIndex = new Date().getMonth();
-    latestPeriod.weeklySales = latestPeriod.weeklySales.map(
-      (_, weekIndex) => 5000 + monthIndex * 500 + weekIndex * 100
-    );
+    latestPeriod.weeklySales = latestPeriod.weeklySales.map((_, weekIndex) => 5000 + (monthIndex * 500) + (weekIndex * 100));
     latestPeriod.inventoryCost = 22;
-    latestPeriod.inventoryCostType = "percent";
+    latestPeriod.inventoryCostType = 'percent';
   }
 
   return periods;
@@ -55,18 +54,12 @@ export const mockFeeConfig: FeeConfig = {
 };
 
 export const mockStaffCosts: StaffCost[] = [
-  {
-    id: "staff-1",
-    employeeName: "John Doe",
-    paymentType: "hourly",
-    hours: 160,
-    wageRate: 20,
-  },
+  { id: 'staff-1', employeeName: 'John Doe', paymentType: 'hourly', hours: 160, wageRate: 20 },
 ];
 
 export const mockPersonalExpenses: PersonalExpense[] = [
-  { id: "exp-1", name: "Rent/Mortgage", amount: 2000 },
-  { id: "exp-2", name: "Car Loan", amount: 450 },
-  { id: "exp-3", name: "Groceries", amount: 800 },
-  { id: "exp-4", name: "Utilities", amount: 300 },
+  { id: 'exp-1', name: 'Rent/Mortgage', amount: 2000 },
+  { id: 'exp-2', name: 'Car Loan', amount: 450 },
+  { id: 'exp-3', name: 'Groceries', amount: 800 },
+  { id: 'exp-4', name: 'Utilities', amount: 300 },
 ];

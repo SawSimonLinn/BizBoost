@@ -1,12 +1,8 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
+
+
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { Period } from "@/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface DashboardHeaderProps {
   periods: Period[];
@@ -14,23 +10,20 @@ interface DashboardHeaderProps {
   onSetActivePeriod: (id: string) => void;
 }
 
-export function DashboardHeader({
+export function DashboardHeader({ 
   periods,
   activePeriod,
   onSetActivePeriod,
 }: DashboardHeaderProps) {
   return (
     <header className="flex flex-col-reverse md:flex-row md:items-start justify-between gap-4">
-      <div className="flex-grow">
-        <h1 className="text-xl md:text-2xl font-bold font-headline text-foreground">
+       <div className="flex-grow">
+          <h1 className="text-xl md:text-2xl font-bold font-headline text-foreground">
           Franchise Performance Dashboard
-        </h1>
-        <p className="text-muted-foreground">
-          Showing data for:{" "}
-          <span className="font-semibold text-foreground">
-            {activePeriod.name}
-          </span>
-        </p>
+          </h1>
+          <p className="text-muted-foreground">
+          Showing data for: <span className="font-semibold text-foreground">{activePeriod.name}</span>
+          </p>
       </div>
       <div className="flex w-full md:w-auto items-center justify-end gap-2">
         <Select value={activePeriod.id} onValueChange={onSetActivePeriod}>
@@ -38,10 +31,8 @@ export function DashboardHeader({
             <SelectValue placeholder="Select a period" />
           </SelectTrigger>
           <SelectContent>
-            {periods.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
+            {periods.map(p => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -50,5 +41,5 @@ export function DashboardHeader({
         </div>
       </div>
     </header>
-  );
+  )
 }

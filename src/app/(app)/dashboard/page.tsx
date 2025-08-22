@@ -1,23 +1,31 @@
+
 "use client";
 
-import * as React from "react";
-import { DollarSign, TrendingDown, Building, Wallet } from "lucide-react";
-import { DashboardHeader } from "@/components/dashboard/header";
-import { KpiCard } from "@/components/dashboard/kpi-card";
-import { FeeBreakdownChart } from "@/components/dashboard/fee-breakdown-chart";
-import { PayoutSplit } from "@/components/dashboard/payout-split";
-import { TakeHomeTier } from "@/components/dashboard/take-home-tier";
-import { StaffScheduler } from "@/components/dashboard/staff-scheduler";
-import { AiInsights } from "@/components/dashboard/ai-insights";
-import { FeeConfigurator } from "@/components/dashboard/fee-configurator";
-import { TakeHomeCalculator } from "@/components/dashboard/take-home-calculator";
-import { useAppContext } from "@/context/app-context";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { WelcomeModal } from "@/components/dashboard/welcome-modal";
+import * as React from 'react';
+import {
+  DollarSign,
+  TrendingDown,
+  Building,
+  Wallet,
+} from 'lucide-react';
+import { DashboardHeader } from '@/components/dashboard/header';
+import { KpiCard } from '@/components/dashboard/kpi-card';
+import { FeeBreakdownChart } from '@/components/dashboard/fee-breakdown-chart';
+import { PayoutSplit } from '@/components/dashboard/payout-split';
+import { TakeHomeTier } from '@/components/dashboard/take-home-tier';
+import { StaffScheduler } from '@/components/dashboard/staff-scheduler';
+import { AiInsights } from '@/components/dashboard/ai-insights';
+import { FeeConfigurator } from '@/components/dashboard/fee-configurator';
+import { TakeHomeCalculator } from '@/components/dashboard/take-home-calculator';
+import { useAppContext } from '@/context/app-context';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { WelcomeModal } from '@/components/dashboard/welcome-modal';
+import { useI18n } from '@/context/i18n-context';
 
-const WELCOME_MODAL_SEEN_KEY = "bizboost_welcomeModalSeen";
+const WELCOME_MODAL_SEEN_KEY = 'bizboost_welcomeModalSeen';
 
 export default function DashboardPage() {
+    const { t } = useI18n();
   const {
     periods,
     activePeriod,
@@ -37,7 +45,7 @@ export default function DashboardPage() {
     netTakeHome,
     franchisorCut,
     ownerCut,
-    netEarningsAfterStaff,
+    netEarningsAfterStaff
   } = useAppContext();
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = React.useState(false);
@@ -50,7 +58,7 @@ export default function DashboardPage() {
   }, []);
 
   const handleWelcomeModalClose = () => {
-    localStorage.setItem(WELCOME_MODAL_SEEN_KEY, "true");
+    localStorage.setItem(WELCOME_MODAL_SEEN_KEY, 'true');
     setIsWelcomeModalOpen(false);
   };
 
@@ -62,29 +70,29 @@ export default function DashboardPage() {
   };
 
   const feeData = [
-    { name: "Royalty Fee", value: royaltyFee, fill: "var(--chart-1)" },
-    { name: "Staff Cost", value: staffCost, fill: "var(--chart-4)" },
-    { name: "Inventory", value: inventoryCostValue, fill: "var(--chart-2)" },
-    { name: "Other", value: totalOtherExpenses, fill: "var(--chart-3)" },
+    { name: t('Royalty Fee'), value: royaltyFee, fill: 'var(--chart-1)' },
+    { name: t('Staff Cost'), value: staffCost, fill: 'var(--chart-4)' },
+    { name: t('Inventory'), value: inventoryCostValue, fill: 'var(--chart-2)' },
+    { name: t('Other'), value: totalOtherExpenses, fill: 'var(--chart-3)' },
   ];
 
   const takeHomeTiers = { low: 5000, good: 10000, best: 15000 };
-
+  
   const pastSalesForAI = "Month 1: $30000, Month 2: $32000, Month 3: $28000";
   const periodsDataForAI = JSON.stringify([
-    { period: "Week 1", sales: 7000, promotions: "20% off", result: "average" },
-    { period: "Week 2", sales: 9500, promotions: "BOGO", result: "best" },
-    { period: "Week 3", sales: 6500, promotions: "none", result: "low" },
+      { period: "Week 1", sales: 7000, promotions: "20% off", result: "average" },
+      { period: "Week 2", sales: 9500, promotions: "BOGO", result: "best" },
+      { period: "Week 3", sales: 6500, promotions: "none", result: "low" },
   ]);
   const costAnalysisDataForAI = {
-    revenue: totalSales,
-    franchiseFee: royaltyFee,
-    marketingFee: 0,
-    techFee: 0,
-    staffCost,
-    inventoryCost: inventoryCostValue,
-    otherExpenses: JSON.stringify(activePeriod.otherExpenses),
-    periodsAnalyzed: 3,
+      revenue: totalSales,
+      franchiseFee: royaltyFee,
+      marketingFee: 0,
+      techFee: 0,
+      staffCost,
+      inventoryCost: inventoryCostValue,
+      otherExpenses: JSON.stringify(activePeriod.otherExpenses),
+      periodsAnalyzed: 3,
   };
 
   return (
@@ -98,7 +106,7 @@ export default function DashboardPage() {
         onFeeChange={handleFeeConfigChange}
         totalSales={totalSales}
       />
-      <DashboardHeader
+      <DashboardHeader 
         periods={periods}
         activePeriod={activePeriod}
         onSetActivePeriod={setActivePeriodId}
@@ -106,64 +114,37 @@ export default function DashboardPage() {
 
       <main className="mt-8">
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-          <KpiCard
-            title="Total Revenue"
-            value={kpiData.revenue}
-            icon={DollarSign}
-            trend="up"
-          />
-          <KpiCard
-            title="Franchise Fees"
-            value={kpiData.franchiseFees}
-            icon={TrendingDown}
-            trend="down"
-          />
-          <KpiCard
-            title="Operating Costs"
-            value={kpiData.operatingCosts}
-            icon={Building}
-            trend="down"
-          />
-          <KpiCard
-            title="Net Take-Home"
-            value={kpiData.netTakeHome}
-            icon={Wallet}
-            trend="up"
-            isPrimary
-          />
+          <KpiCard title={t('Total Revenue')} value={kpiData.revenue} icon={DollarSign} trend="up" />
+          <KpiCard title={t('Franchise Fees')} value={kpiData.franchiseFees} icon={TrendingDown} trend="down" />
+          <KpiCard title={t('Operating Costs')} value={kpiData.operatingCosts} icon={Building} trend="down" />
+          <KpiCard title={t('Net Take-Home')} value={kpiData.netTakeHome} icon={Wallet} trend="up" isPrimary />
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
-            <FeeConfigurator
-              feeConfig={feeConfig}
-              onFeeChange={handleFeeConfigChange}
-              activePeriod={activePeriod}
-              onPeriodChange={handlePeriodChange}
-              totalSales={totalSales}
-            />
+             <FeeConfigurator 
+                feeConfig={feeConfig} 
+                onFeeChange={handleFeeConfigChange} 
+                activePeriod={activePeriod}
+                onPeriodChange={handlePeriodChange}
+                totalSales={totalSales}
+              />
             <PayoutSplit franchisorCut={franchisorCut} ownerCut={ownerCut} />
-            <TakeHomeTier
-              currentTakeHome={netEarningsAfterStaff}
-              tiers={takeHomeTiers}
-            />
-            <StaffScheduler
-              staffCosts={staffCosts}
-              setStaffCosts={setStaffCosts}
-            />
+            <TakeHomeTier currentTakeHome={netEarningsAfterStaff} tiers={takeHomeTiers} />
+            <StaffScheduler staffCosts={staffCosts} setStaffCosts={setStaffCosts} />
           </div>
 
           <div className="space-y-8">
             <FeeBreakdownChart data={feeData} />
-            <TakeHomeCalculator
-              netEarnings={netEarningsAfterStaff}
-              personalExpenses={personalExpenses}
-              setPersonalExpenses={setPersonalExpenses}
-            />
+             <TakeHomeCalculator
+                netEarnings={netEarningsAfterStaff}
+                personalExpenses={personalExpenses}
+                setPersonalExpenses={setPersonalExpenses}
+              />
           </div>
         </div>
-
-        <AiInsights
+        
+        <AiInsights 
           pastSalesData={pastSalesForAI}
           periodsData={periodsDataForAI}
           costAnalysisData={costAnalysisDataForAI}

@@ -1,3 +1,5 @@
+
+
 export interface OtherExpense {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export interface Period {
   name: string;
   weeklySales: number[];
   inventoryCost: number;
-  inventoryCostType: "amount" | "percent";
+  inventoryCostType: 'amount' | 'percent';
   otherExpenses: OtherExpense[];
 }
 
@@ -20,26 +22,26 @@ export interface FeeConfig {
 export interface StaffCost {
   id: string;
   employeeName: string;
-  paymentType: "hourly" | "salary";
+  paymentType: 'hourly' | 'salary';
   hours?: number;
   wageRate?: number;
   salary?: number;
 }
 
 export interface PersonalExpense {
-  id: string;
-  name: string;
-  amount: number;
+    id:string;
+    name: string;
+    amount: number;
 }
 
 export interface HistoricalData {
-  name: string;
-  Sales: number;
-  "Gross Profit": number;
-  "Net Profit": number;
+    name: string;
+    Sales: number;
+    "Gross Profit": number;
+    "Net Profit": number;
 }
 
 export interface User {
-  uid: string;
-  email: string | null;
+    uid: string;
+    email: string | null;
 }

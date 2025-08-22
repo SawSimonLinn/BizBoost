@@ -15,7 +15,6 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { FeeBreakdownChart } from "@/components/dashboard/fee-breakdown-chart";
 import { PayoutSplit } from "@/components/dashboard/payout-split";
-import { TakeHomeTier } from "@/components/dashboard/take-home-tier";
 import { StaffScheduler } from "@/components/dashboard/staff-scheduler";
 import { AiInsights } from "@/components/dashboard/ai-insights";
 import { FeeConfigurator } from "@/components/dashboard/fee-configurator";
@@ -119,11 +118,11 @@ export default function DashboardPage() {
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-primary">
             <LayoutGrid className="h-5 w-5" />
-            Core Performance & Input
+            Net Deposit after company Deductions
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-6">
                 <KpiCard
                   title={t("Total Revenue")}
                   value={kpiData.revenue}
@@ -161,11 +160,11 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Section 2: Financial Breakdown */}
+        {/* Section 2: Business Expenses */}
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-primary">
             <Landmark className="h-5 w-5" />
-            Financial Breakdown
+            Business Expenses
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">

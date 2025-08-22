@@ -30,7 +30,7 @@ export default function FinancialBreakdownPage() {
 
   return (
     <div>
-      <PageHeader title="Financial Breakdown" />
+      <PageHeader title="Business Expenses" />
       <div className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">

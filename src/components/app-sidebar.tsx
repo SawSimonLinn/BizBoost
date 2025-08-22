@@ -29,7 +29,7 @@ export function AppSidebar() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
     {
       href: "/financial-breakdown",
-      label: "Financial Breakdown",
+      label: "Business Expenses",
       icon: Landmark,
     },
     { href: "/personal-finances", label: "Personal Finances", icon: Wallet },
